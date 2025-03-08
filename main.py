@@ -211,18 +211,19 @@ class CoinexTradingBot:
     def calculate_position_size(self, symbol: str, price: float, leverage: int) -> float:
         """Calculate position size based on account balance and risk management"""
         account_info = self.get_account_info()
-        print(account_info, '\n account info \n')
+
         if account_info.get("code") != 0:
             return 0.0
             # Get USDT balance
         if account_info["data"] == None:
             return 0.0
+
             
-        usdt_balance = float(account_info["data"]["USDT"]["available"])
-        print(usdt_balance, '\n usdt balance \n')
+        usdt_balance = float([balance for balance in account_info["data"] if balance["ccy"] == "USDT"][0]["available"])
+
         # Use 5% of available balance for each trade
         position_size = (usdt_balance * 0.05) / price
-        print(position_size, '\n position size \n')
+
         return round(position_size, 4)
             
 
@@ -273,7 +274,7 @@ class CoinexTradingBot:
 
             # Calculate position size
             amount = self.calculate_position_size(symbol, price, leverage)
-            if amount <= 0:
+            if amount <= 0.00001:
                 logger.error("Invalid position size calculated")
                 return None
 
